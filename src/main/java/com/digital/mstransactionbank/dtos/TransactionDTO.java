@@ -1,18 +1,18 @@
-package com.digital.mstransactionbank.domain;
+package com.digital.mstransactionbank.dtos;
 
+import com.digital.mstransactionbank.domain.Account;
+import com.digital.mstransactionbank.domain.Vendor;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.time.Instant;
 
 @Data
-@Entity(name = "transactions")
-public class Transaction {
+public class TransactionDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -22,9 +22,11 @@ public class Transaction {
     @NotNull
     private Instant transactionTime;
 
-    @ManyToOne
+    @NotEmpty
+    @Valid
     private Account account;
 
-    @ManyToOne
+    @NotEmpty
+    @Valid
     private Vendor vendor;
 }
