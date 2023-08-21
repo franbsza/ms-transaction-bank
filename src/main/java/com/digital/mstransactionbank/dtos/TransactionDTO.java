@@ -1,32 +1,27 @@
 package com.digital.mstransactionbank.dtos;
 
-import com.digital.mstransactionbank.domain.Account;
-import com.digital.mstransactionbank.domain.Vendor;
+import io.swagger.v3.oas.annotations.Hidden;
+import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
-import java.time.Instant;
+import java.time.ZonedDateTime;
 
 @Data
+@Builder
 public class TransactionDTO {
 
-    private Long id;
-
-    @NotNull
+    @NotNull(message = "Value is required")
     @Positive
     private Double value;
 
+    @Hidden
+    private ZonedDateTime transactionTime;
+
     @NotNull
-    private Instant transactionTime;
+    private Long accountId;
 
-    @NotEmpty
-    @Valid
-    private Account account;
-
-    @NotEmpty
-    @Valid
-    private Vendor vendor;
+    @NotNull
+    private Long vendorId;
 }

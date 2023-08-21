@@ -1,13 +1,20 @@
 package com.digital.mstransactionbank.domain;
 
+import com.digital.mstransactionbank.dtos.TransactionDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
-import java.time.Instant;
+import java.time.ZonedDateTime;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "transactions")
 public class Transaction {
 
@@ -20,11 +27,23 @@ public class Transaction {
     private Double value;
 
     @NotNull
-    private Instant transactionTime;
+    private ZonedDateTime transactionTime;
 
     @ManyToOne
     private Account account;
 
-    @ManyToOne
-    private Vendor vendor;
+    private Long vendorId;
+
+    public static Transaction createInstance(TransactionDTO transactionDTO) {
+        return new Transaction(transactionDTO);
+    }
+
+    public Transaction(TransactionDTO transactionDTO) {
+        this.value = transactionDTO.getValue();
+        this.transactionTime = transactionDTO.getTransactionTime();
+        this.vendorId = transactionDTO.getVendorId();
+        this.account = Account.builder()
+                                .id(transactionDTO.getAccountId())
+                                .build();
+    }
 }

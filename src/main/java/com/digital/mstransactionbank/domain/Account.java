@@ -1,9 +1,7 @@
 package com.digital.mstransactionbank.domain;
 
 import com.digital.mstransactionbank.dtos.AccountDTO;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.Valid;
@@ -13,6 +11,8 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
+@ToString(exclude = {"client", "transactions"})
+@Builder
 @Entity(name = "accounts")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,11 +33,11 @@ public class Account {
     private boolean activeCard;
 
     @Valid
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
     private Client client;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transaction> transactions;
 
     public static Account createInstance(AccountDTO accountDTO) {
