@@ -1,6 +1,7 @@
 package com.digital.mstransactionbank.dtos;
 
 import com.digital.mstransactionbank.domain.Account;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,8 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountDTO {
+
+    @Hidden
     private Long id;
 
     @NotNull(message = "Account number is required")
