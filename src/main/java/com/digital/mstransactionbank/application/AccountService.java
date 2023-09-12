@@ -3,6 +3,7 @@ package com.digital.mstransactionbank.application;
 import com.digital.mstransactionbank.domain.Account;
 import com.digital.mstransactionbank.domain.Transaction;
 import com.digital.mstransactionbank.dtos.AccountDTO;
+import com.digital.mstransactionbank.dtos.ResponseDTO;
 import com.digital.mstransactionbank.dtos.TransactionDTO;
 import com.digital.mstransactionbank.repository.AccountRepository;
 import lombok.AllArgsConstructor;
@@ -20,11 +21,11 @@ public class AccountService {
     private static final int HIGH_TRANSACTION_LIMIT = 3;
     private static final int DUPLICATE_TRANSACTION_LIMIT = 2;
     private static final int VENDOR_LIMIT = 1;
-    private static final int SECONDS_LIMIT = 120;
+    private static final int SECONDS_LIMIT = 300;
 
     public AccountDTO createAccount(AccountDTO accountDTO) {
         accountRepository.findAccountByNumber(accountDTO.getDocumentNumber())
-                .ifPresent((account) -> {
+                .ifPresent(account -> {
                     throw new IllegalArgumentException("Account already exists "+ account.getId());
                 });
 
@@ -32,6 +33,28 @@ public class AccountService {
         return AccountDTO.createInstance(accountResponse);
     }
 
+    public ResponseDTO accountValidation(TransactionDTO transactionDTO) {
+
+        Optional<Account> account = accountRepository.findById(transactionDTO.getAccountId());
+
+        if (account.isPresent()) {
+
+            Account accountResponse = account.get();
+            if (!accountResponse.isActiveCard()) {
+                return ResponseDTO.builder().success(false).message("Transaction denied: card not active").build();
+            }
+            if(transactionDTO.getValue() > accountResponse.getAvailableLimit()){
+                return ResponseDTO.builder().success(false).message("Transaction denied: insufficient funds").build();
+            }
+
+            if (transactionValidation(accountResponse, transactionDTO)) {
+                updateLimit(accountResponse.getAvailableLimit() - transactionDTO.getValue(), transactionDTO.getAccountId());
+                return ResponseDTO.builder().success(true).build();
+            }
+
+        }
+        return ResponseDTO.builder().success(false).message("Transaction denied: account not found").build();
+    }
 
     void updateLimit(Double newLimit, Long id){
         accountRepository.updateAvailableLimit(newLimit, id);
@@ -51,26 +74,15 @@ public class AccountService {
                 .count();
     }
 
-    public boolean accountValidation(TransactionDTO transactionDTO) {
-
-       Optional<Account> account = accountRepository.findById(transactionDTO.getAccountId());
-
-        if (account.isPresent() && account.get().isActiveCard() &&
-                account.get().getAvailableLimit() >= transactionDTO.getValue() &&
-                transactionValidation(account.get(), transactionDTO)) {
-                     updateLimit(transactionDTO.getValue(), transactionDTO.getAccountId());
-                     return true;
-                }
-
-        return false;
-    }
-
     boolean transactionValidation(Account account, TransactionDTO transactionDTO) {
+
         if (!account.getTransactions().isEmpty()) {
             long countTransactions = countTransactions(transactionDTO.getTransactionTime(), account.getTransactions());
 
-            return countTransactions <= HIGH_TRANSACTION_LIMIT &&
-                    (!isTransactionDuplicated(transactionDTO.getVendorId(), account.getTransactions()) || countTransactions <= DUPLICATE_TRANSACTION_LIMIT);
+            if( countTransactions >= HIGH_TRANSACTION_LIMIT ||
+                    (isTransactionDuplicated(transactionDTO.getVendorId(), account.getTransactions()) && countTransactions >= DUPLICATE_TRANSACTION_LIMIT) ) {
+                return false;
+            }
         }
         return true;
     }

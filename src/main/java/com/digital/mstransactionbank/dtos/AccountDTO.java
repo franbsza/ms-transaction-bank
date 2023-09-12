@@ -1,6 +1,7 @@
 package com.digital.mstransactionbank.dtos;
 
 import com.digital.mstransactionbank.domain.Account;
+import com.digital.mstransactionbank.domain.Transaction;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @Data
 @Builder
@@ -35,6 +37,9 @@ public class AccountDTO {
     @NotNull(message = "Document number is required")
     private String documentNumber;
 
+    @Hidden
+    private List<Transaction> transactions;
+
     public static AccountDTO createInstance(Account account){
         return new AccountDTO(account);
     }
@@ -46,5 +51,6 @@ public class AccountDTO {
         this.activeCard = account.isActiveCard();
         this.clientName = account.getClient().getName();
         this.documentNumber = account.getClient().getDocumentNumber();
+        this.transactions = account.getTransactions();
     }
 }

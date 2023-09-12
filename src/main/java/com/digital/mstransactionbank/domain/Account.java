@@ -50,5 +50,6 @@ public class Account {
         this.availableLimit = accountDTO.getAvailableLimit();
         this.activeCard = accountDTO.isActiveCard();
         this.client =  Client.createInstance(accountDTO.getDocumentNumber(), accountDTO.getClientName());
+        this.transactions = accountDTO.getTransactions();
     }
 }
