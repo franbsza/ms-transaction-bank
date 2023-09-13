@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class AccountServiceTest {
+class AccountAccountServiceTest {
 
     AccountService accountService;
     AccountRepository accountRepository;
@@ -96,7 +96,7 @@ class AccountServiceTest {
         when(accountRepository.findById(transactionDTO.getAccountId())).thenReturn(Optional.of(account));
 
         ResponseDTO response = accountService.accountValidation(transactionDTO);
-        assertTrue(response.isSuccess());
+        assertTrue(response.isStatus());
         verify(accountRepository).updateAvailableLimit(account.getAvailableLimit() - transactionDTO.getValue(), transactionDTO.getAccountId());
     }
 }

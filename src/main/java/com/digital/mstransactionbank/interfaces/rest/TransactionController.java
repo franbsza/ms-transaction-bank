@@ -22,7 +22,7 @@ public class TransactionController {
 
         ResponseDTO response = transactionService.authTransaction(transactionDTO);
 
-        if (response.isSuccess())
+        if (response.isStatus())
             return ResponseEntity.ok(response);
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
     }

@@ -36,12 +36,12 @@ class TransactionServiceTest {
                 .value(1000.0)
                 .build();
 
-        ResponseDTO response = ResponseDTO.builder().success(true).build();
+        ResponseDTO response = ResponseDTO.builder().status(true).build();
 
         when(accountService.accountValidation(transactionDTO)).thenReturn(response);
 
         ResponseDTO result = service.authTransaction(transactionDTO);
-        assertTrue(result.isSuccess());
+        assertTrue(result.isStatus());
         verify(repository, times(1)).save(any(Transaction.class));
     }
 
@@ -55,12 +55,12 @@ class TransactionServiceTest {
                 .value(1000.0)
                 .build();
 
-        ResponseDTO response = ResponseDTO.builder().success(false).build();
+        ResponseDTO response = ResponseDTO.builder().status(false).build();
 
         when(accountService.accountValidation(transactionDTO)).thenReturn(response);
 
         ResponseDTO result = service.authTransaction(transactionDTO);
-        assertFalse(result.isSuccess());
+        assertFalse(result.isStatus());
         verifyZeroInteractions(repository);
     }
 }

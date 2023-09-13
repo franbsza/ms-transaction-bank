@@ -21,7 +21,7 @@ public class AccountService {
     private static final int HIGH_TRANSACTION_LIMIT = 3;
     private static final int DUPLICATE_TRANSACTION_LIMIT = 2;
     private static final int VENDOR_LIMIT = 1;
-    private static final int SECONDS_LIMIT = 300;
+    private static final int SECONDS_LIMIT = 120;
 
     public AccountDTO createAccount(AccountDTO accountDTO) {
         accountRepository.findAccountByNumber(accountDTO.getDocumentNumber())
@@ -36,31 +36,30 @@ public class AccountService {
     public ResponseDTO accountValidation(TransactionDTO transactionDTO) {
 
         Optional<Account> account = accountRepository.findById(transactionDTO.getAccountId());
-
-        if (account.isPresent()) {
-
-            Account accountResponse = account.get();
-            if (!accountResponse.isActiveCard()) {
-                return ResponseDTO.builder().success(false).message("Transaction denied: card not active").build();
-            }
-            if(transactionDTO.getValue() > accountResponse.getAvailableLimit()){
-                return ResponseDTO.builder().success(false).message("Transaction denied: insufficient funds").build();
-            }
-
-            if (transactionValidation(accountResponse, transactionDTO)) {
-                updateLimit(accountResponse.getAvailableLimit() - transactionDTO.getValue(), transactionDTO.getAccountId());
-                return ResponseDTO.builder().success(true).build();
-            }
-
+        if (account.isEmpty()) {
+            return ResponseDTO.builder().status(false).message("Transaction denied: account not found").build();
         }
-        return ResponseDTO.builder().success(false).message("Transaction denied: account not found").build();
+
+        Account accountResponse = account.get();
+
+        validation(new AccountValid(), accountResponse.isActiveCard());
+        validation(new AvailableLimit(),transactionDTO.getValue() >= accountResponse.getAvailableLimit());
+
+        validateTransactions(accountResponse, transactionDTO);
+
+        updateLimit(accountResponse.getAvailableLimit() - transactionDTO.getValue(), transactionDTO.getAccountId());
+        return ResponseDTO.builder().status(true).message("Transaction approved").build();
+    }
+
+    public void validation(ValidationStrategy strategy, boolean value) {
+        strategy.isValid(value);
     }
 
     void updateLimit(Double newLimit, Long id){
         accountRepository.updateAvailableLimit(newLimit, id);
     }
 
-    boolean isTransactionDuplicated(Long vendorId, List<Transaction> transactions){
+    boolean isVendorDuplicated(Long vendorId, List<Transaction> transactions){
 
         return transactions.stream()
                 .filter(t -> t.getVendorId()
@@ -74,16 +73,13 @@ public class AccountService {
                 .count();
     }
 
-    boolean transactionValidation(Account account, TransactionDTO transactionDTO) {
+    void validateTransactions(Account accountResponse, TransactionDTO transactionDTO){
+        if (!accountResponse.getTransactions().isEmpty()) {
+            long countTransactions = countTransactions(transactionDTO.getTransactionTime(), accountResponse.getTransactions());
 
-        if (!account.getTransactions().isEmpty()) {
-            long countTransactions = countTransactions(transactionDTO.getTransactionTime(), account.getTransactions());
-
-            if( countTransactions >= HIGH_TRANSACTION_LIMIT ||
-                    (isTransactionDuplicated(transactionDTO.getVendorId(), account.getTransactions()) && countTransactions >= DUPLICATE_TRANSACTION_LIMIT) ) {
-                return false;
-            }
+            this.validation(new HighTransaction(), isVendorDuplicated(transactionDTO.getVendorId(), accountResponse.getTransactions())
+                    && countTransactions >= DUPLICATE_TRANSACTION_LIMIT);
+            this.validation(new HighTransaction(), countTransactions >= HIGH_TRANSACTION_LIMIT);
         }
-        return true;
     }
 }

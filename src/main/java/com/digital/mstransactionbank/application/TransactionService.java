@@ -5,11 +5,10 @@ import com.digital.mstransactionbank.dtos.ResponseDTO;
 import com.digital.mstransactionbank.dtos.TransactionDTO;
 import com.digital.mstransactionbank.repository.TransactionRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 
-@Service
+@org.springframework.stereotype.Service
 @AllArgsConstructor
 public class TransactionService {
 
@@ -20,7 +19,7 @@ public class TransactionService {
         transactionDTO.setTransactionTime(ZonedDateTime.now());
 
         ResponseDTO response = accountService.accountValidation(transactionDTO);
-        if(response.isSuccess()){
+        if(response.isStatus()){
             transactionRepository.save(Transaction.createInstance(transactionDTO));
             return response;
         }
