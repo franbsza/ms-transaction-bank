@@ -18,6 +18,13 @@
         <junit.jupiter.version>5.6.2</junit.jupiter.version>
         <sonar.organization>franbsza</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.coverage.exclusions>
+            **/mstransactionbank/configuration/**,
+            **/mstransactionbank/domain/**,
+            **/mstransactionbank/dtos/**,
+            **/mstransactionbank/repository/**
+            **/mstransactionbank/*Application.class
+        </sonar.coverage.exclusions>
     </properties>
     <dependencies>
         <dependency>
@@ -103,7 +110,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.10</version>
+                <version>0.8.3</version>
                 <executions>
                     <execution>
                         <goals>
