@@ -5,10 +5,11 @@ import com.digital.mstransactionbank.dtos.ResponseDTO;
 import com.digital.mstransactionbank.dtos.TransactionDTO;
 import com.digital.mstransactionbank.repository.TransactionRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 
-@org.springframework.stereotype.Service
+@Service
 @AllArgsConstructor
 public class TransactionService {
 

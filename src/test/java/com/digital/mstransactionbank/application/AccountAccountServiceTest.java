@@ -9,9 +9,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import javax.persistence.EntityNotFoundException;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static helper.TestHelper.mockAccountDTO;
+import static helper.TestHelper.mockTransactionDTO;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -29,13 +34,7 @@ class AccountAccountServiceTest {
 
     @Test
     void createAccount() {
-        AccountDTO accountDTO = AccountDTO.builder()
-                                        .number("1234")
-                                        .availableLimit(1000.0)
-                                        .activeCard(true)
-                                        .clientName("João")
-                                        .documentNumber("12345678910")
-                                        .build();
+        AccountDTO accountDTO =  mockAccountDTO();
         Account account = Account.createInstance(accountDTO);
 
         when(accountRepository.findAccountByNumber(accountDTO.getDocumentNumber()))
@@ -49,19 +48,23 @@ class AccountAccountServiceTest {
 
     @Test
     void createAccount_accountAlreadyExists() {
-        AccountDTO accountDTO = AccountDTO.builder()
-                .number("1234")
-                .availableLimit(1000.0)
-                .activeCard(true)
-                .clientName("João")
-                .documentNumber("12345678910")
-                .build();
+        AccountDTO accountDTO =  mockAccountDTO();
         Account account = Account.createInstance(accountDTO);
 
         when(accountRepository.findAccountByNumber(accountDTO.getDocumentNumber()))
                 .thenReturn(Optional.of(account));
 
         assertThrows(IllegalArgumentException.class, () -> accountService.createAccount(accountDTO));
+    }
+
+    @Test
+    void accountValidation_shouldThrowException() {
+        TransactionDTO transactionDTO = mockTransactionDTO();
+
+        when(accountRepository.findById(transactionDTO.getAccountId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> accountService.accountValidation(transactionDTO));
     }
 
     @Test

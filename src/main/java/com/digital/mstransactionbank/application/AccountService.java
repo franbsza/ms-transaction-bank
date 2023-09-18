@@ -9,6 +9,7 @@ import com.digital.mstransactionbank.repository.AccountRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +38,7 @@ public class AccountService {
 
         Optional<Account> account = accountRepository.findById(transactionDTO.getAccountId());
         if (account.isEmpty()) {
-            return ResponseDTO.builder().status(false).message("Transaction denied: account not found").build();
+            throw new EntityNotFoundException("Transaction denied: account not found");
         }
 
         Account accountResponse = account.get();
