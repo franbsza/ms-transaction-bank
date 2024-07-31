@@ -10,7 +10,7 @@ Para mais informações clique [aqui](https://www.notion.so/cayena-app/Documenta
 ### 💻 Arquitetura e Design system
 Este serviço faz parte de uma arquitetura de microserviços 
 que oferece interface no padrão REST API [documentada](https://api-dev.cayena.io/payment-rest-api/swagger-ui.html) com a especificação Open API e orientado a eventos, integrado aos serviços da AWS EventBrigde e SQS. 
-[Desenho da aquitetura da solução](https://app.diagrams.net/#G1l1I4q4KTwncwwWr_kcwNljogKLvFKnjl#%7B%22pageId%22%3A%22QA03ZjVP1ARPEGaEjEtX%22%7D).
+[Desenho da arquitetura da solução](https://app.diagrams.net/#G1l1I4q4KTwncwwWr_kcwNljogKLvFKnjl#%7B%22pageId%22%3A%22QA03ZjVP1ARPEGaEjEtX%22%7D).
 
 Está organizado em módulos conforme a [documentação](https://www.notion.so/cayena-app/M-dulos-3885cf390a104101b96ddae066ccb72f)
 
